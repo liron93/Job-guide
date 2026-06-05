@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.pm-prep.scan-jobs</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/local/bin/node</string>
+    <string>/Users/Lironbez/Desktop/pm-interview-prep/node_modules/.bin/tsx</string>
+    <string>--env-file=/Users/Lironbez/Desktop/pm-interview-prep/.env.local</string>
+    <string>/Users/Lironbez/Desktop/pm-interview-prep/scripts/scan-jobs.ts</string>
+  </array>
+
+  <key>WorkingDirectory</key>
+  <string>/Users/Lironbez/Desktop/pm-interview-prep</string>
+
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key>
+    <integer>8</integer>
+    <key>Minute</key>
+    <integer>0</integer>
+  </dict>
+
+  <key>StandardOutPath</key>
+  <string>/tmp/pm-prep-scan.log</string>
+
+  <key>StandardErrorPath</key>
+  <string>/tmp/pm-prep-scan-error.log</string>
+
+  <key>RunAtLoad</key>
+  <false/>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin</string>
+  </dict>
+</dict>
+</plist>

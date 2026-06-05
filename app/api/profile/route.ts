@@ -4,17 +4,17 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 const ProfileSchema = z.object({
-  full_name: z.string().optional(),
-  job_title: z.string().optional(),
-  years_experience: z.number().min(0).max(40).optional(),
-  experience_areas: z.array(z.string()).optional(),
-  looking_for: z.string().optional(),
-  target_companies: z.string().optional(),
-  strengths: z.string().optional(),
-  improvement_areas: z.string().optional(),
-  additional_notes: z.string().optional(),
-  claude_api_key: z.string().optional(),
-});
+  full_name: z.string().nullish(),
+  job_title: z.string().nullish(),
+  years_experience: z.number().min(0).max(40).nullish(),
+  experience_areas: z.array(z.string()).nullish(),
+  looking_for: z.string().nullish(),
+  target_companies: z.string().nullish(),
+  strengths: z.string().nullish(),
+  improvement_areas: z.string().nullish(),
+  additional_notes: z.string().nullish(),
+  claude_api_key: z.string().nullish(),
+}).passthrough();
 
 export async function GET() {
   const supabase = createClient();

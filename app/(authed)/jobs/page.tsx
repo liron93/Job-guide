@@ -9,10 +9,20 @@ export const dynamic = "force-dynamic";
 
 export default async function JobsPage() {
   const supabase = createClient();
-  const { data: jobs } = await supabase
-    .from("jobs")
-    .select("id, company_name, role_title, fit_score, should_apply, status, applied_at, created_at")
-    .order("created_at", { ascending: false });
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const [{ data: jobs }, { count: newTodayCount }] = await Promise.all([
+    supabase
+      .from("jobs")
+      .select("id, company_name, role_title, fit_score, should_apply, status, applied_at, created_at, source")
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("jobs")
+      .select("id", { count: "exact", head: true })
+      .eq("source", "auto_scan")
+      .gte("created_at", today.toISOString()),
+  ]);
 
   return (
     <div className="max-w-3xl mx-auto space-y-8">
@@ -23,6 +33,15 @@ export default async function JobsPage() {
         </div>
         <Button render={<Link href="/jobs/new" />}>+ הוסף משרה</Button>
       </div>
+
+      {(newTodayCount ?? 0) > 0 && (
+        <div className="rounded-lg border border-blue-500/30 bg-blue-500/10 px-4 py-3 text-sm flex items-center gap-2">
+          <span className="text-blue-400">✦</span>
+          <span>
+            נמצאו <strong>{newTodayCount}</strong> משרות חדשות היום מ-LinkedIn
+          </span>
+        </div>
+      )}
 
       {(jobs ?? []).length === 0 ? (
         <Card className="border-dashed">
@@ -41,6 +60,9 @@ export default async function JobsPage() {
                   <CardContent className="px-4 py-3">
                     <div className="flex items-center justify-between gap-4">
                       <div className="flex items-center gap-2 shrink-0">
+                        {job.source === "auto_scan" && (
+                          <span className="text-xs text-blue-400 font-medium">LinkedIn</span>
+                        )}
                         <Badge variant="outline" className={statusStyle.color}>
                           {statusStyle.label}
                         </Badge>
