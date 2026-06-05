@@ -14,11 +14,13 @@ import {
   User,
   Library,
   Settings,
+  Video,
 } from "lucide-react";
 
 const NAV = [
   { href: "/", label: "דשבורד", icon: LayoutDashboard, exact: true },
   { href: "/guide", label: "מדריך", icon: BookOpen },
+  { href: "/interview", label: "ראיון מדומה", icon: Video },
   { href: "/questions", label: "שאלות", icon: MessageSquare },
   { href: "/concepts", label: "מושגים", icon: Library },
   { href: "/articles", label: "מאמרים", icon: Newspaper },
