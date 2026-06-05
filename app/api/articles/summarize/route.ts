@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
   let rawResponse: string;
   try {
     const message = await anthropic.messages.create({
-      model: "claude-sonnet-4-6",
+      model: "claude-haiku-4-5-20251001",
       max_tokens: 2500,
       system: `אתה עוזר לאנשי Product Management להעריך תוכן מקצועי ולנהל את הידע שלהם.
 תנתח מאמר לעומק ותחזיר JSON בלבד, ללא markdown, ללא הסברים לפני או אחרי.

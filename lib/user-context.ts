@@ -1,6 +1,8 @@
+import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 
-export async function getUserContext(): Promise<string> {
+// cache() deduplicates calls within the same request
+export const getUserContext = cache(async (): Promise<string> => {
   const supabase = createClient();
 
   const [{ data: profile }, { data: cv }] = await Promise.all([
@@ -28,4 +30,4 @@ export async function getUserContext(): Promise<string> {
 
   if (parts.length === 0) return "";
   return `פרופיל המשתמש/ת:\n${parts.join("\n")}`;
-}
+});

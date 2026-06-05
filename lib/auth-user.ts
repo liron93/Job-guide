@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 
 export interface AuthUser {
@@ -6,7 +7,8 @@ export interface AuthUser {
   claudeApiKey: string | null;
 }
 
-export async function getAuthUser(): Promise<AuthUser | null> {
+// cache() deduplicates calls within the same request — no repeated DB hits
+export const getAuthUser = cache(async (): Promise<AuthUser | null> => {
   const supabase = createClient();
   const { data: { user }, error } = await supabase.auth.getUser();
   if (error || !user) return null;
@@ -22,4 +24,4 @@ export async function getAuthUser(): Promise<AuthUser | null> {
     email: user.email,
     claudeApiKey: profile?.claude_api_key ?? null,
   };
-}
+});

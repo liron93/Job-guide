@@ -11,53 +11,36 @@ export async function GET(request: NextRequest) {
   const supabase = createClient();
   const admin = createAdminClient();
 
+  // Fetch questions + best scores in parallel
   let query = admin.from("questions").select("*");
-
   if (category) query = query.eq("category", category);
   if (difficulty) query = query.eq("difficulty", difficulty);
 
-  const { data: questions, error } = await query.order("created_at", { ascending: true });
+  const [{ data: questions, error }, { data: answerRows }] = await Promise.all([
+    query.order("created_at", { ascending: true }),
+    supabase.from("answers").select("question_id, overall_score").order("overall_score", { ascending: false }),
+  ]);
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-
-  if (answered !== null) {
-    const { data: answerRows } = await supabase
-      .from("answers")
-      .select("question_id, overall_score")
-      .order("overall_score", { ascending: false });
-
-    const bestScoreByQuestion = new Map<string, number>();
-    for (const row of answerRows ?? []) {
-      if (!bestScoreByQuestion.has(row.question_id) || (row.overall_score ?? 0) > (bestScoreByQuestion.get(row.question_id) ?? 0)) {
-        bestScoreByQuestion.set(row.question_id, row.overall_score);
-      }
-    }
-
-    const filtered = (questions ?? []).filter((q) => {
-      const hasAnswer = bestScoreByQuestion.has(q.id);
-      return answered === "true" ? hasAnswer : !hasAnswer;
-    });
-
-    return NextResponse.json(
-      filtered.map((q) => ({ ...q, best_score: bestScoreByQuestion.get(q.id) ?? null }))
-    );
-  }
-
-  // Always join best scores
-  const { data: answerRows } = await supabase
-    .from("answers")
-    .select("question_id, overall_score");
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
   const bestScoreByQuestion = new Map<string, number>();
   for (const row of answerRows ?? []) {
-    if (!bestScoreByQuestion.has(row.question_id) || (row.overall_score ?? 0) > (bestScoreByQuestion.get(row.question_id) ?? 0)) {
+    const existing = bestScoreByQuestion.get(row.question_id) ?? 0;
+    if ((row.overall_score ?? 0) > existing) {
       bestScoreByQuestion.set(row.question_id, row.overall_score);
     }
   }
 
-  return NextResponse.json(
-    (questions ?? []).map((q) => ({ ...q, best_score: bestScoreByQuestion.get(q.id) ?? null }))
-  );
+  const withScores = (questions ?? []).map(q => ({
+    ...q,
+    best_score: bestScoreByQuestion.get(q.id) ?? null,
+  }));
+
+  if (answered !== null) {
+    return NextResponse.json(
+      withScores.filter(q => answered === "true" ? q.best_score !== null : q.best_score === null)
+    );
+  }
+
+  return NextResponse.json(withScores);
 }

@@ -1,8 +1,10 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Sidebar } from "@/components/sidebar";
-import { ChatBot } from "@/components/chat-bot";
+import dynamic from "next/dynamic";
 import { EvalNotification } from "@/components/eval-notification";
+
+const ChatBot = dynamic(() => import("@/components/chat-bot").then(m => ({ default: m.ChatBot })), { ssr: false });
 
 export default async function AuthedLayout({
   children,
