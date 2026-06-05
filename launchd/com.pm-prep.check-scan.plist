@@ -8,7 +8,7 @@
   <key>ProgramArguments</key>
   <array>
     <string>/usr/local/bin/node</string>
-    <string>/Users/Lironbez/Desktop/pm-interview-prep/node_modules/.bin/tsx</string>
+    <string>/Users/Lironbez/Desktop/pm-interview-prep/node_modules/tsx/dist/cli.mjs</string>
     <string>--env-file=/Users/Lironbez/Desktop/pm-interview-prep/.env.local</string>
     <string>/Users/Lironbez/Desktop/pm-interview-prep/scripts/check-scan.ts</string>
   </array>
@@ -37,6 +37,8 @@
   <dict>
     <key>PATH</key>
     <string>/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin</string>
+    <key>HOME</key>
+    <string>/Users/Lironbez</string>
   </dict>
 </dict>
 </plist>

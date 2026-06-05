@@ -10,7 +10,8 @@
     "seed": "tsx --env-file=.env.local scripts/seed-questions.ts",
     "scan-jobs": "tsx --env-file=.env.local scripts/scan-jobs.ts",
     "check-scan": "tsx --env-file=.env.local scripts/check-scan.ts",
-    "setup-gmail": "tsx --env-file=.env.local scripts/setup-gmail.ts"
+    "setup-gmail": "tsx --env-file=.env.local scripts/setup-gmail.ts",
+    "migrate-scan": "tsx --env-file=.env.local scripts/run-migration.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.95.0",

@@ -43,6 +43,21 @@ async function fetchJobText(url: string): Promise<string> {
     .slice(0, 8000);
 }
 
+export async function GET() {
+  const authUser = await getAuthUser();
+  if (!authUser) return NextResponse.json({ error: "לא מחובר" }, { status: 401 });
+
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("jobs")
+    .select("id, company_name, role_title, fit_score, should_apply, status, created_at")
+    .eq("user_id", authUser.id)
+    .order("created_at", { ascending: false });
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json(data ?? []);
+}
+
 export async function POST(request: NextRequest) {
   const authUser = await getAuthUser();
   if (!authUser) return NextResponse.json({ error: "לא מחובר" }, { status: 401 });
