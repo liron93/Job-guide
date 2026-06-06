@@ -56,3 +56,22 @@ export async function PATCH(
   revalidatePath("/jobs");
   return NextResponse.json(data);
 }
+
+export async function DELETE(
+  _request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "לא מחובר" }, { status: 401 });
+
+  const { error } = await supabase
+    .from("jobs")
+    .delete()
+    .eq("id", params.id)
+    .or(`user_id.eq.${user.id},user_id.is.null`);
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  revalidatePath("/jobs");
+  return NextResponse.json({ ok: true });
+}
