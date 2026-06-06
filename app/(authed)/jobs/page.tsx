@@ -26,7 +26,7 @@ export default async function JobsPage() {
         <Button render={<Link href="/jobs/new" />}>+ הוסף משרה</Button>
       </div>
 
-      {(jobs ?? []).length === 0 && !searchParams.status && !searchParams.apply ? (
+      {(jobs ?? []).length === 0 ? (
         <Card className="border-dashed">
           <CardContent className="py-12 text-center space-y-3">
             <p className="text-muted-foreground text-sm">עוד לא הוספת משרות</p>
