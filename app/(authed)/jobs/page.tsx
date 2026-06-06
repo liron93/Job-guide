@@ -12,9 +12,11 @@ export default async function JobsPage() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
+  const { data: { user } } = await supabase.auth.getUser();
   const { data: jobs } = await supabase
     .from("jobs")
-    .select("id, company_name, role_title, fit_score, should_apply, status, applied_at, created_at")
+    .select("id, company_name, role_title, fit_score, should_apply, status, applied_at, created_at, user_id")
+    .or(`user_id.eq.${user?.id},user_id.is.null`)
     .order("created_at", { ascending: false });
 
   const newTodayCount = 0; // will be re-enabled after source column migration
