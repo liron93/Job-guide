@@ -12,17 +12,12 @@ export default async function JobsPage() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const [{ data: jobs }, { count: newTodayCount }] = await Promise.all([
-    supabase
-      .from("jobs")
-      .select("id, company_name, role_title, fit_score, should_apply, status, applied_at, created_at, source")
-      .order("created_at", { ascending: false }),
-    supabase
-      .from("jobs")
-      .select("id", { count: "exact", head: true })
-      .eq("source", "auto_scan")
-      .gte("created_at", today.toISOString()),
-  ]);
+  const { data: jobs } = await supabase
+    .from("jobs")
+    .select("id, company_name, role_title, fit_score, should_apply, status, applied_at, created_at")
+    .order("created_at", { ascending: false });
+
+  const newTodayCount = 0; // will be re-enabled after source column migration
 
   return (
     <div className="max-w-3xl mx-auto space-y-8">
@@ -60,9 +55,6 @@ export default async function JobsPage() {
                   <CardContent className="px-4 py-3">
                     <div className="flex items-center justify-between gap-4">
                       <div className="flex items-center gap-2 shrink-0">
-                        {job.source === "auto_scan" && (
-                          <span className="text-xs text-blue-400 font-medium">LinkedIn</span>
-                        )}
                         <Badge variant="outline" className={statusStyle.color}>
                           {statusStyle.label}
                         </Badge>
