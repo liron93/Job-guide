@@ -6,27 +6,15 @@ import { JobsList } from "@/components/jobs-list";
 
 export const dynamic = "force-dynamic";
 
-export default async function JobsPage({
-  searchParams,
-}: {
-  searchParams: { status?: string; apply?: string };
-}) {
+export default async function JobsPage() {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  let query = supabase
+  const { data: jobs } = await supabase
     .from("jobs")
     .select("id, company_name, role_title, fit_score, should_apply, status, applied_at, created_at")
     .or(`user_id.eq.${user?.id},user_id.is.null`)
     .order("created_at", { ascending: false });
-
-  if (searchParams.status && searchParams.status !== "all") {
-    query = query.eq("status", searchParams.status);
-  }
-  if (searchParams.apply === "yes") query = query.eq("should_apply", true);
-  if (searchParams.apply === "no") query = query.eq("should_apply", false);
-
-  const { data: jobs } = await query;
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
@@ -46,7 +34,7 @@ export default async function JobsPage({
           </CardContent>
         </Card>
       ) : (
-        <JobsList jobs={jobs ?? []} activeStatus={searchParams.status} activeApply={searchParams.apply} />
+        <JobsList jobs={jobs ?? []} />
       )}
     </div>
   );

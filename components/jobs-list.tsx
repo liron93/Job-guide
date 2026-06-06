@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Trash2 } from "lucide-react";
@@ -29,30 +28,23 @@ const STATUS_OPTIONS = [
 ];
 
 const APPLY_OPTIONS = [
-  { value: undefined, label: "הכל" },
+  { value: "all", label: "הכל" },
   { value: "yes", label: "✓ כדאי" },
   { value: "no", label: "✗ לא כדאי" },
 ];
 
-export function JobsList({
-  jobs: initialJobs,
-  activeStatus,
-  activeApply,
-}: {
-  jobs: Job[];
-  activeStatus?: string;
-  activeApply?: string;
-}) {
-  const router = useRouter();
+export function JobsList({ jobs: initialJobs }: { jobs: Job[] }) {
   const [jobs, setJobs] = useState(initialJobs);
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [applyFilter, setApplyFilter] = useState("all");
   const [deleting, setDeleting] = useState<string | null>(null);
 
-  function setFilter(status?: string, apply?: string) {
-    const params = new URLSearchParams();
-    if (status && status !== "all") params.set("status", status);
-    if (apply) params.set("apply", apply);
-    router.push(`/jobs?${params.toString()}`);
-  }
+  const filtered = jobs.filter(job => {
+    if (statusFilter !== "all" && job.status !== statusFilter) return false;
+    if (applyFilter === "yes" && job.should_apply !== true) return false;
+    if (applyFilter === "no" && job.should_apply !== false) return false;
+    return true;
+  });
 
   async function handleDelete(id: string, e: React.MouseEvent) {
     e.preventDefault();
@@ -60,9 +52,7 @@ export function JobsList({
     if (!confirm("למחוק את המשרה?")) return;
     setDeleting(id);
     const res = await fetch(`/api/jobs/${id}`, { method: "DELETE" });
-    if (res.ok) {
-      setJobs(prev => prev.filter(j => j.id !== id));
-    }
+    if (res.ok) setJobs(prev => prev.filter(j => j.id !== id));
     setDeleting(null);
   }
 
@@ -74,9 +64,9 @@ export function JobsList({
           {STATUS_OPTIONS.map(opt => (
             <button
               key={opt.value}
-              onClick={() => setFilter(opt.value, activeApply)}
+              onClick={() => setStatusFilter(opt.value)}
               className={`px-3 py-1 rounded-full text-xs border transition-colors ${
-                (activeStatus ?? "all") === opt.value
+                statusFilter === opt.value
                   ? "bg-primary text-primary-foreground border-primary"
                   : "border-border text-muted-foreground hover:text-foreground"
               }`}
@@ -88,10 +78,10 @@ export function JobsList({
         <div className="flex gap-1.5">
           {APPLY_OPTIONS.map(opt => (
             <button
-              key={opt.value ?? "all"}
-              onClick={() => setFilter(activeStatus, opt.value)}
+              key={opt.value}
+              onClick={() => setApplyFilter(opt.value)}
               className={`px-3 py-1 rounded-full text-xs border transition-colors ${
-                activeApply === opt.value
+                applyFilter === opt.value
                   ? "bg-primary text-primary-foreground border-primary"
                   : "border-border text-muted-foreground hover:text-foreground"
               }`}
@@ -103,11 +93,11 @@ export function JobsList({
       </div>
 
       {/* List */}
-      {jobs.length === 0 ? (
+      {filtered.length === 0 ? (
         <p className="text-center text-muted-foreground text-sm py-8">אין משרות עם הפילטר הזה</p>
       ) : (
         <div className="space-y-2">
-          {jobs.map((job) => {
+          {filtered.map((job) => {
             const statusStyle = STATUS_LABELS[job.status] ?? STATUS_LABELS.considering;
             return (
               <Link key={job.id} href={`/jobs/${job.id}`} className="block group">
